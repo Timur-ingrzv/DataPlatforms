@@ -25,6 +25,28 @@ team@team-32-01:~$ sudo apt upgrade
 team@team-32-01:~$ exit
 ```
 
+\
+Исправление /etc/hosts. Комментируем строку `127.0.1.1`, иначе демоны на ноде регистрируются как localhost.
+```bash
+# Edgenode
+team@team-32-en:~$ sudo sed -i 's/^127\.0\.1\.1/#&/' /etc/hosts
+
+# Namenode
+team@team-32-en:~$ ssh -i ~/.ssh/team_internal team@team-32-nn
+team@team-32-nn:~$ sudo sed -i 's/^127\.0\.1\.1/#&/' /etc/hosts
+team@team-32-nn:~$ exit
+
+# Datanode 0
+team@team-32-en:~$ ssh -i ~/.ssh/team_internal team@team-32-00
+team@team-32-00:~$ sudo sed -i 's/^127\.0\.1\.1/#&/' /etc/hosts
+team@team-32-00:~$ exit
+
+# Datanode 1
+team@team-32-en:~$ ssh -i ~/.ssh/team_internal team@team-32-01
+team@team-32-01:~$ sudo sed -i 's/^127\.0\.1\.1/#&/' /etc/hosts
+team@team-32-01:~$ exit
+```
+
 
 ### 2. Создание пользователя hadoop
 Пользователь hadoop нужен для коммуникации узлов кластера и при этом он без прав sudo.

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<configuration>
+    <!-- где живет ResourceManager; слушать на всех интерфейсах -->
+    <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>team-32-nn</value>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.bind-host</name>
+        <value>0.0.0.0</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.bind-host</name>
+        <value>0.0.0.0</value>
+    </property>
+    <!-- сервис shuffle: reduce-задачи забирают через него результаты map-задач -->
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+    <!-- переменные окружения, которые NodeManager передает в контейнеры -->
+    <property>
+        <name>yarn.nodemanager.env-whitelist</name>
+        <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_HOME,PATH,LANG,TZ,HADOOP_MAPRED_HOME</value>
+    </property>
+    <!-- ресурсы узла под контейнеры (по умолчанию 8 ГБ и 8 vcores, которых у нас нет) -->
+    <property>
+        <name>yarn.nodemanager.resource.memory-mb</name>
+        <value>2048</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.resource.cpu-vcores</name>
+        <value>2</value>
+    </property>
+    <property>
+        <name>yarn.scheduler.minimum-allocation-mb</name>
+        <value>256</value>
+    </property>
+    <property>
+        <name>yarn.scheduler.maximum-allocation-mb</name>
+        <value>2048</value>
+    </property>
+    <property>
+        <name>yarn.scheduler.maximum-allocation-vcores</name>
+        <value>2</value>
+    </property>
+    <!-- проверка виртуальной памяти на маленьких VM убивает контейнеры зря -->
+    <property>
+        <name>yarn.nodemanager.vmem-check-enabled</name>
+        <value>false</value>
+    </property>
+    <!-- логи контейнеров собираются в HDFS и доступны через JobHistory -->
+    <property>
+        <name>yarn.log-aggregation-enable</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>yarn.log.server.url</name>
+        <value>http://team-32-nn:19888/jobhistory/logs</value>
+    </property>
+</configuration>
