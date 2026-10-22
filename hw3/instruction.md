@@ -65,9 +65,49 @@ hadoop@team-32-en:~$ cd apache-hive-4.0.0-alpha-2-bin/
 hadoop@team-32-en:~/apache-hive-4.0.0-alpha-2-bin$ bin/schematool -dbType postgres -initSchema
 ```
 
-### Запуск серверов
+### 4. Запуск серверов
 ```bash
 hadoop@team-32-en:~/apache-hive-4.0.0-alpha-2-bin$ hive --hiveconf hive.server2.enable.doAs=false -hiveconf hive.security.authorization.enabled=false --service hiveserver2 1>> /tmp/hs2.log 2>> /tmp/hs2.log &
 hadoop@team-32-en:~/apache-hive-4.0.0-alpha-2-bin$ hive --hiveconf hive.server2.enable.doAs=false -hiveconf hive.security.authorization.enabled=false --service metastore 1>> /tmp/hms.log 2>> /tmp/hms.log &
 hadoop@team-32-en:~/apache-hive-4.0.0-alpha-2-bin$ beeline -u jdbc:hive2://team-32-en:5433 -n scott -p tiger
+```
+
+### 5. Загрузка данных
+```bash
+# создание портицированной таблицы
+CREATE TABLE IF NOT EXISTS transactions_partitioned (
+    transaction_time STRING,
+    merch STRING,
+    cat_id INT,
+    amount DOUBLE,
+    name_1 STRING,
+    name_2 STRING,
+    gender STRING,
+    street STRING,
+    one_city STRING,
+    post_code STRING,
+    lat DOUBLE,
+    lon DOUBLE,
+    population_city INT,
+    jobs STRING,
+    merchant_lat DOUBLE,
+    merchant_lon DOUBLE
+)
+PARTITIONED BY (us_state STRING)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+```
+
+
+```bash
+# Добавление строк в нужную партицию
+LOAD DATA LOCAL INPATH '/home/hadoop/test.csv'
+INTO TABLE transactions_partitioned
+PARTITION (us_state='CA');
+
+# Полученная таблица
+hadoop@team-32-en:~$ hdfs dfs -ls /user/hive/warehouse/transactions_partitioned;
+Found 1 items
+drwxr-xr-x   - hadoop supergroup          0 2026-10-22 14:01 /user/hive/warehouse/transactions_partitioned/us_state=CA
 ```
