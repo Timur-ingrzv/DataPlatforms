@@ -75,39 +75,89 @@ hadoop@team-32-en:~/apache-hive-4.0.0-alpha-2-bin$ beeline -u jdbc:hive2://team-
 ### 5. Загрузка данных
 ```bash
 # создание портицированной таблицы
-CREATE TABLE IF NOT EXISTS transactions_partitioned (
+DROP TABLE IF EXISTS transactions_partitioned;
+
+CREATE TABLE transactions_partitioned (
     transaction_time STRING,
-    merch STRING,
-    cat_id INT,
-    amount DOUBLE,
-    name_1 STRING,
-    name_2 STRING,
-    gender STRING,
-    street STRING,
-    one_city STRING,
-    post_code STRING,
-    lat DOUBLE,
-    lon DOUBLE,
-    population_city INT,
-    jobs STRING,
-    merchant_lat DOUBLE,
-    merchant_lon DOUBLE
+    merch            STRING,
+    cat_id           STRING,
+    amount           DOUBLE,
+    name_1           STRING,
+    name_2           STRING,
+    gender           STRING,
+    street           STRING,
+    one_city         STRING,
+    post_code        STRING,
+    lat              DOUBLE,
+    lon              DOUBLE,
+    population_city  INT,
+    jobs             STRING,
+    merchant_lat     DOUBLE,
+    merchant_lon     DOUBLE
 )
 PARTITIONED BY (us_state STRING)
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY ','
-STORED AS TEXTFILE;
+STORED AS ORC; 
+
+# создание временной таблицы
+DROP TABLE IF EXISTS transactions_staging;
+
+CREATE TABLE transactions_staging (
+    transaction_time STRING,
+    merch            STRING,
+    cat_id           STRING,
+    amount           DOUBLE,
+    name_1           STRING,
+    name_2           STRING,
+    gender           STRING,
+    street           STRING,
+    one_city         STRING,
+    us_state         STRING,
+    post_code        STRING,
+    lat              DOUBLE,
+    lon              DOUBLE,
+    population_city  INT,
+    jobs             STRING,
+    merchant_lat     DOUBLE,
+    merchant_lon     DOUBLE
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+    "separatorChar" = ",",
+    "quoteChar"     = "\"",
+    "escapeChar"    = "\\"
+)
+STORED AS TEXTFILE
+TBLPROPERTIES ("skip.header.line.count"="1");
 ```
 
-
 ```bash
-# Добавление строк в нужную партицию
+# Загрузка данных в временную таблицу
 LOAD DATA LOCAL INPATH '/home/hadoop/test.csv'
-INTO TABLE transactions_partitioned
-PARTITION (us_state='CA');
+OVERWRITE INTO TABLE transactions_staging;
 
-# Полученная таблица
-hadoop@team-32-en:~$ hdfs dfs -ls /user/hive/warehouse/transactions_partitioned;
-Found 1 items
-drwxr-xr-x   - hadoop supergroup          0 2026-10-22 14:01 /user/hive/warehouse/transactions_partitioned/us_state=CA
+# Добавление строк в нужную партицию
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+
+INSERT OVERWRITE TABLE transactions_partitioned
+PARTITION (us_state)
+SELECT
+    transaction_time,
+    merch,
+    cat_id,
+    amount,
+    name_1,
+    name_2,
+    gender,
+    street,
+    one_city,
+    post_code,
+    lat,
+    lon,
+    population_city,
+    jobs,
+    merchant_lat,
+    merchant_lon,
+    us_state 
+FROM transactions_staging;
 ```
