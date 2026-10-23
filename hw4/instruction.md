@@ -1,7 +1,5 @@
 # Инструкция для обработки данных Apache Spark под управлением YARN
 
-Выполняется после hw1–hw3. HDFS, YARN и HiveServer2 должны работать.
-
 ### 1. Подготовка
 
 Копируем задание на edge-ноду:
@@ -69,8 +67,6 @@ hadoop@team-32-en:~/hw4$ INPUT_PATH=hdfs://team-32-nn:9000/actual/csv/directory 
 ### 6. Сохранение таблицы
 
 `create_table.sql` создает внешнюю таблицу `hw4.transactions_summary_<run_id>` поверх Parquet. `MSCK REPAIR TABLE` регистрирует партиции.
-
-Метаданные создаются через Beeline: Hive 4 alpha из hw3 не входит в [поддерживаемые версии metastore Spark 3.5](https://spark.apache.org/docs/3.5.8/sql-data-sources-hive-tables.html).
 
 ### 7. Проверка чтения через Hive
 
